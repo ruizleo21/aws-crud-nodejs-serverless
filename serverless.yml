@@ -1,0 +1,52 @@
+service: aws-crud-node
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  lambdaHashingVersion: '20201221'
+  region: us-east-2
+  iamRoleStatements: 
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: 
+        - arn:aws:dynamodb:us-east-2:471112809093:table/UserTable
+
+functions:
+  createUser:
+    handler: src/createUser.addUser
+    events: 
+      - httpApi: 'POST /user'
+  getUsers:
+    handler: src/getUsers.getUsers
+    events: 
+      - httpApi: 'GET /users'
+  getUser:
+    handler: src/getUser.getUser
+    events: 
+      - httpApi: 'GET /user/{userName}'
+  updateUser:
+    handler: src/updateUser.updateUser
+    events: 
+      - httpApi: 'PUT /user/{userName}'
+  deleteUser:
+    handler: src/deleteUser.deleteUser
+    events:
+      - httpApi: 'DELETE /user/{userName}'
+
+resources:
+  Resources:
+    UserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: UserTable
+        AttributeDefinitions:
+          - AttributeName: userName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userName
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
